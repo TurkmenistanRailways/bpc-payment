@@ -64,5 +64,13 @@ func (h *HalkBank) SubmitCard(form banks.SubmitCard) (string, error) {
 }
 
 func (h *HalkBank) ResendOtpCode(request string) error {
-	panic("implement me")
+	return nil
+}
+
+func (h *HalkBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
+	return nil
+}
+
+func (h *HalkBank) Refund(form banks.RefundRequest) error {
+	return nil
 }

@@ -74,6 +74,30 @@ func (bpc *BPC) ResendOtpCode(profileName string, requestID string) error {
 	return nil
 }
 
+func (bpc *BPC) ConfirmPayment(profileName string, form banks.ConfirmPaymentRequest) error {
+	if err := bpc.checkProfile(profileName); err != nil {
+		return err
+	}
+
+	if err := bpc.banks[profileName].ConfirmPayment(form); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (bpc *BPC) Refund(profileName string, form banks.RefundRequest) error {
+	if err := bpc.checkProfile(profileName); err != nil {
+		return err
+	}
+
+	if err := bpc.banks[profileName].Refund(form); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (bpc *BPC) checkProfile(profileName string) error {
 	if _, ok := bpc.banks[profileName]; !ok {
 		return fmt.Errorf("profile %s not found", profileName)

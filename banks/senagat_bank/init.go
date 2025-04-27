@@ -108,6 +108,32 @@ func (h *SenagatBank) ResendOtpCode(requestID string) error {
 	return nil
 }
 
+func (h *SenagatBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
+	paRes, err := h.confirmOtp(form)
+	if err != nil {
+		return err
+	}
+
+	if err = h.finishPayment(paRes, form.MDORDER); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *SenagatBank) Refund(form banks.RefundRequest) error {
+	form.Username = h.UserName
+	form.Password = h.Password
+
+	urlParams := utils.StructToURLParams(form)
+	fullUrl := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatRefundURL, urlParams)
+
+	if _, err := request.Get(fullUrl); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (h *SenagatBank) getOtpRequestID(orderId string, form SubmitCardResponse) (string, error) {
 	formData := url.Values{}
 	formData.Add("MD", orderId)
@@ -136,6 +162,42 @@ func (h *SenagatBank) sendOtp(requestID string) error {
 
 	requestUrl := fmt.Sprintf("%s%s", banks.SenagatBankBaseUrl, banks.SenagatOTPURL)
 	if _, err := request.Post(requestUrl, bytes.NewBufferString(encodedData)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *SenagatBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, error) {
+	formData := url.Values{}
+	formData.Add("request_id", form.RequestID)
+	formData.Add("passwordEdit", form.PasswordEdit)
+	formData.Add("submitButton", "Tassyklamak")
+	encodedData := formData.Encode()
+
+	fullUrl := fmt.Sprintf("%s%s", banks.SenagatBankBaseUrl, banks.SenagatOTPURL)
+
+	res, err := request.Post(fullUrl, bytes.NewBufferString(encodedData))
+	if err != nil {
+		return "", err
+	}
+
+	root, err := html.Parse(bytes.NewReader(res))
+	if err != nil {
+		return "", err
+	}
+
+	return utils.FindPaRes(root), nil
+}
+
+func (h *SenagatBank) finishPayment(paRes, orderID string) error {
+	formData := url.Values{}
+	formData.Add("MD", orderID)
+	formData.Add("PaRes", paRes)
+	encodedData := formData.Encode()
+	fullUrl := fmt.Sprintf("%s%s", banks.SenagatBankBaseUrl, banks.SenagatFinishURL)
+
+	if _, err := request.Post(fullUrl, bytes.NewBufferString(encodedData)); err != nil {
 		return err
 	}
 

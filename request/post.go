@@ -35,3 +35,21 @@ func Post(fullURL string, formBody io.Reader) ([]byte, error) {
 
 	return body, nil
 }
+
+func Get(fullURL string) ([]byte, error) {
+	resp, err := http.Get(fullURL)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return bodyBytes, nil
+}

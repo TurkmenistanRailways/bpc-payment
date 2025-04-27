@@ -47,3 +47,21 @@ type SubmitCard struct {
 	// language is language
 	Language string `json:"language"`
 }
+
+type ConfirmPaymentRequest struct {
+	// Request id comes from previous request of card submission
+	RequestID string `json:"request_id"`
+
+	// otp password that comes to phone number
+	PasswordEdit string `json:"passwordEdit"`
+
+	// md order which was created on order registration
+	MDORDER string `json:"MDORDER"`
+}
+
+type RefundRequest struct {
+	Username string `json:"userName"`
+	Password string `json:"password"`
+	OrderID  string `json:"orderId"`
+	Amount   int    `json:"amount"`
+}

@@ -60,9 +60,17 @@ func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistra
 }
 
 func (h *RysgalBank) SubmitCard(form banks.SubmitCard) (string, error) {
-	panic("implement me")
+	return "", nil
 }
 
 func (h *RysgalBank) ResendOtpCode(request string) error {
-	panic("implement me")
+	return nil
+}
+
+func (h *RysgalBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
+	return nil
+}
+
+func (h *RysgalBank) Refund(form banks.RefundRequest) error {
+	return nil
 }
