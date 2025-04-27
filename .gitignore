@@ -1,3 +1,2 @@
-.env
-/bin
-/badger
+.idea
+main_test.go

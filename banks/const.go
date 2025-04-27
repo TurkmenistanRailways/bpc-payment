@@ -1,6 +1,10 @@
-package constants
+package banks
 
 const (
+	HalkBankBaseUrl    = "https://mpi.gov.tm"
+	SenagatBankBaseUrl = "https://epg.senagatbank.com.tm"
+	RysgalBankBaseUrl  = "https://epg2.rysgalbank.tm"
+
 	SenagatRegisterURL       = "/epg/rest/register.do"
 	SenagatConfirmPaymentURL = "/epg/rest/processform.do"
 	SenagatFinishURL         = "/payments/rest/finish3ds.do"
@@ -17,4 +21,8 @@ const (
 
 	RysgalRegisterURL       = "/epg/rest/register.do"
 	RysgalConfirmPaymentURL = "/epg/rest/processform.do"
+)
+
+const (
+	CurrencyTMT = "934"
 )
