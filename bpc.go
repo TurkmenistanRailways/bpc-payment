@@ -98,6 +98,19 @@ func (bpc *BPC) Refund(profileName string, form banks.RefundRequest) error {
 	return nil
 }
 
+func (bpc *BPC) CheckStatus(profileName string, orderID string) (banks.OrderStatus, error) {
+	if err := bpc.checkProfile(profileName); err != nil {
+		return banks.OrderStatusError, err
+	}
+
+	orderStatus, err := bpc.banks[profileName].CheckStatus(orderID)
+	if err != nil {
+		return banks.OrderStatusError, err
+	}
+
+	return orderStatus, nil
+}
+
 func (bpc *BPC) checkProfile(profileName string) error {
 	if _, ok := bpc.banks[profileName]; !ok {
 		return fmt.Errorf("profile %s not found", profileName)

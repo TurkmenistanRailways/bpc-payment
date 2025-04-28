@@ -1,5 +1,18 @@
 package banks
 
+type OrderStatus string
+
+const (
+	OrderStatusPending   OrderStatus = "pending"   // Payment is initiated but not completed yet
+	OrderStatusPaid      OrderStatus = "paid"      // Payment completed successfully
+	OrderStatusNotPaid   OrderStatus = "not_paid"  // Payment was not made (user abandoned, etc.)
+	OrderStatusFailed    OrderStatus = "failed"    // Payment attempt failed (e.g., declined by bank)
+	OrderStatusCanceled  OrderStatus = "canceled"  // Order was canceled before payment completed
+	OrderStatusRefunded  OrderStatus = "refunded"  // Payment was returned to customer
+	OrderStatusError     OrderStatus = "error"     // Unexpected error occurred during payment
+	OrderStatusUnderpaid OrderStatus = "underpaid" // Payment received, but amount is less than expected
+)
+
 const (
 	HalkBankBaseUrl    = "https://mpi.gov.tm"
 	SenagatBankBaseUrl = "https://epg.senagatbank.com.tm"

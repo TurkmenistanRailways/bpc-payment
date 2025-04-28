@@ -1,3 +1,4 @@
 .idea
 main_test.go
 /cmd
+res.json

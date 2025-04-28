@@ -6,4 +6,5 @@ type Bank interface {
 	SubmitCard(form SubmitCard) (string, error)
 	ResendOtpCode(request string) error
 	Refund(form RefundRequest) error
+	CheckStatus(orderID string) (OrderStatus, error)
 }

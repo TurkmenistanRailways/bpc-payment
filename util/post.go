@@ -1,17 +1,16 @@
-package request
+package util
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 func Post(fullURL string, formBody io.Reader) ([]byte, error) {
 	req, err := http.NewRequest("POST", fullURL, formBody)
 	if err != nil {
-		return nil, errors.Wrap(err, "error creating request")
+		return nil, errors.Join(err, errors.New("error creating request"))
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -19,7 +18,7 @@ func Post(fullURL string, formBody io.Reader) ([]byte, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "error executing request")
+		return nil, errors.Join(err, errors.New("error executing request"))
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -30,7 +29,7 @@ func Post(fullURL string, formBody io.Reader) ([]byte, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "error reading response body")
+		return nil, errors.Join(err, errors.New("error reading response body"))
 	}
 
 	return body, nil
