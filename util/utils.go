@@ -24,30 +24,12 @@ func GenerateOrderNumber(minLen, maxLen int) string {
 
 func FindRequestId(n *html.Node) string {
 	if n.Type == html.ElementNode && n.Data == "input" {
-		// Check if this input element matches the desired criteria
-		isHiddenInput := false
-		var id, name, value string
-
-		// Extract attributes of the input element
-		for _, attr := range n.Attr {
-			if attr.Key == "type" && attr.Val == "hidden" {
-				isHiddenInput = true
-			} else if attr.Key == "id" {
-				id = attr.Val
-			} else if attr.Key == "name" {
-				name = attr.Val
-			} else if attr.Key == "value" {
-				value = attr.Val
-			}
-		}
-
-		// Check if it's the desired input element
-		if isHiddenInput && id == "request_id" && name == "request_id" {
+		inputType, id, name, value := getInputAttributes(n)
+		if inputType == "hidden" && id == "request_id" && name == "request_id" {
 			return value
 		}
 	}
 
-	// Recursive traversal of child nodes
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		if value := FindRequestId(c); value != "" {
 			return value
@@ -56,31 +38,14 @@ func FindRequestId(n *html.Node) string {
 
 	return ""
 }
-
 func FindPaRes(n *html.Node) string {
 	if n.Type == html.ElementNode && n.Data == "input" {
-		// Check if this input element matches the desired criteria
-		isHiddenInput := false
-		var name, value string
-
-		// Extract attributes of the input element
-		for _, attr := range n.Attr {
-			if attr.Key == "type" && attr.Val == "hidden" {
-				isHiddenInput = true
-			} else if attr.Key == "name" {
-				name = attr.Val
-			} else if attr.Key == "value" {
-				value = attr.Val
-			}
-		}
-
-		// Check if it's the desired input element
-		if isHiddenInput && name == "PaRes" {
+		inputType, _, name, value := getInputAttributes(n)
+		if inputType == "hidden" && name == "PaRes" {
 			return value
 		}
 	}
 
-	// Recursive traversal of child nodes
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		if value := FindPaRes(c); value != "" {
 			return value
@@ -88,6 +53,23 @@ func FindPaRes(n *html.Node) string {
 	}
 
 	return ""
+}
+
+// getInputAttributes extracts relevant attributes from an <input> element.
+func getInputAttributes(n *html.Node) (inputType, id, name, value string) {
+	for _, attr := range n.Attr {
+		switch attr.Key {
+		case "type":
+			inputType = attr.Val
+		case "id":
+			id = attr.Val
+		case "name":
+			name = attr.Val
+		case "value":
+			value = attr.Val
+		}
+	}
+	return
 }
 
 // StructToURLParams converts a struct into URL query parameters
