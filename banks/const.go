@@ -16,7 +16,7 @@ const (
 const (
 	HalkBankBaseUrl    = "https://mpi.gov.tm"
 	SenagatBankBaseUrl = "https://epg.senagatbank.com.tm"
-	RysgalBankBaseUrl  = "https://epg2.rysgalbank.tm"
+	RysgalBankBaseUrl  = "https://epg.rysgalbank.tm"
 
 	SenagatRegisterURL       = "/epg/rest/register.do"
 	SenagatConfirmPaymentURL = "/epg/rest/processform.do"
