@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/TurkmenistanRailways/bpc-payment/util"
 	"log"
 	"net/url"
+
+	"github.com/TurkmenistanRailways/bpc-payment/util"
 
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
 )
