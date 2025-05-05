@@ -1,5 +1,5 @@
 module github.com/TurkmenistanRailways/bpc-payment
 
-go 1.24.2
+go 1.23.0
 
 require golang.org/x/net v0.39.0
