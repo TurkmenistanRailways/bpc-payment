@@ -1,4 +1,4 @@
-package senagat_bank
+package rysgal_bank
 
 import (
 	"bytes"
@@ -8,31 +8,30 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/TurkmenistanRailways/bpc-payment/util"
-
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
+	"github.com/TurkmenistanRailways/bpc-payment/util"
 )
 
-type SenagatBank struct {
+type RysgalBank struct {
 	userName string
 	password string
 }
 
 func Init(user banks.BankUser) banks.Bank {
-	return &SenagatBank{
+	return &RysgalBank{
 		userName: user.Username,
 		password: user.Password,
 	}
 }
 
-func (h *SenagatBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
+func (h *RysgalBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 	urlParams := util.StructToURLParams(OrderStatusRequest{
 		Username: h.userName,
 		Password: h.password,
 		OrderID:  orderID,
 	})
 
-	fullURL := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatOrderStatusURL, urlParams)
+	fullURL := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalOrderStatusURL, urlParams)
 
 	res, err := util.Post(fullURL, nil)
 	if err != nil {
@@ -53,7 +52,7 @@ func (h *SenagatBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 	return banks.OrderStatusError, errors.New("invalid status code")
 }
 
-func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrationResponse, error) {
+func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrationResponse, error) {
 	requestPayload := banks.OrderRegistrationRequest{
 		Username:           h.userName,
 		Password:           h.password,
@@ -66,7 +65,7 @@ func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistr
 	}
 
 	urlParams := util.StructToURLParams(requestPayload)
-	registerURL := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatRegisterURL, urlParams)
+	registerURL := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalRegisterURL, urlParams)
 
 	responseBody, err := util.Post(registerURL, nil)
 	if err != nil {
@@ -84,9 +83,9 @@ func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistr
 	}, nil
 }
 
-func (h *SenagatBank) SubmitCard(form banks.SubmitCard) (string, error) {
+func (h *RysgalBank) SubmitCard(form banks.SubmitCard) (string, error) {
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatConfirmPaymentURL, urlParams)
+	fullUrl := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalConfirmPaymentURL, urlParams)
 
 	responseBody, err := util.Post(fullUrl, nil)
 	if err != nil {
@@ -106,14 +105,15 @@ func (h *SenagatBank) SubmitCard(form banks.SubmitCard) (string, error) {
 	return requestID, h.sendOtp(requestID)
 }
 
-func (h *SenagatBank) ResendOtpCode(requestID string) error {
+func (h *RysgalBank) ResendOtpCode(requestID string) error {
 	formData := url.Values{}
+	formData.Add("authForm", "authForm")
 	formData.Add("request_id", requestID)
-	formData.Add("resendButton", "Kody gaýtadan ugratmak")
-	formData.Add("passwordEdit", "")
+	formData.Add("pwdInputVisible", "")
+	formData.Add("resendPasswordLink", "resendPasswordLink")
 	encodedData := formData.Encode()
 
-	requestUrl := fmt.Sprintf("%s%s", banks.SenagatBankBaseUrl, banks.SenagatOTPURL)
+	requestUrl := fmt.Sprintf("%s%s", banks.RysgalBankBaseUrl, banks.RysgalBankOtpUrl)
 	if _, err := util.Post(requestUrl, bytes.NewBufferString(encodedData)); err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (h *SenagatBank) ResendOtpCode(requestID string) error {
 	return nil
 }
 
-func (h *SenagatBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
+func (h *RysgalBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 	paRes, err := h.confirmOtp(form)
 	if err != nil {
 		return err
@@ -133,12 +133,12 @@ func (h *SenagatBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 	return nil
 }
 
-func (h *SenagatBank) Refund(form banks.RefundRequest) error {
+func (h *RysgalBank) Refund(form banks.RefundRequest) error {
 	form.Username = h.userName
 	form.Password = h.password
 
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatRefundURL, urlParams)
+	fullUrl := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalRefundURL, urlParams)
 
 	if _, err := util.Get(fullUrl); err != nil {
 		return err

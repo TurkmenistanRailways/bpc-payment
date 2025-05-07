@@ -5,6 +5,7 @@ import (
 
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
 	"github.com/TurkmenistanRailways/bpc-payment/banks/halk_bank"
+	"github.com/TurkmenistanRailways/bpc-payment/banks/rysgal_bank"
 	"github.com/TurkmenistanRailways/bpc-payment/banks/senagat_bank"
 )
 
@@ -13,11 +14,13 @@ type BankType string
 const (
 	SenagatBank BankType = "SenagatBank"
 	HalkBank    BankType = "HalkBank"
+	RysgalBank  BankType = "RysgalBank"
 )
 
 var bankTypes = []BankType{
 	SenagatBank,
 	HalkBank,
+	RysgalBank,
 }
 
 func checkBankType(bankType BankType) error {
