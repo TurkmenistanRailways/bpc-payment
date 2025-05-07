@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 
-	"github.com/TurkmenistanRailways/bpc-payment/util"
-
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
+	"github.com/TurkmenistanRailways/bpc-payment/util"
 )
 
 type SenagatBank struct {
@@ -43,8 +41,6 @@ func (h *SenagatBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 	if err = json.Unmarshal(res, &response); err != nil {
 		return banks.OrderStatusError, err
 	}
-
-	log.Println("Status response:", string(res))
 
 	if status, ok := statusCodes[response.ErrorCode]; ok {
 		return status, nil
@@ -127,10 +123,7 @@ func (h *SenagatBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 		return err
 	}
 
-	if err = h.finishPayment(paRes, form.MDORDER); err != nil {
-		return err
-	}
-	return nil
+	return h.finishPayment(paRes, form.MDORDER)
 }
 
 func (h *SenagatBank) Refund(form banks.RefundRequest) error {

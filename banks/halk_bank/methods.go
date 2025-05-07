@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/url"
 
+	"golang.org/x/net/html"
+
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
 	"github.com/TurkmenistanRailways/bpc-payment/util"
-	"golang.org/x/net/html"
 )
 
 func (h *HalkBank) getOtpRequestID(orderId string, form SubmitCardResponse) (string, error) {
@@ -37,8 +38,7 @@ func (h *HalkBank) sendOtp(requestID string) error {
 	formData.Add("sendPasswordButton", "Send password")
 	encodedData := formData.Encode()
 
-	requestUrl := fmt.Sprintf("https://%s", banks.HalkBankOtpUrl)
-	if _, err := util.Post(requestUrl, bytes.NewBufferString(encodedData)); err != nil {
+	if _, err := util.Post(banks.HalkBankOtpUrl, bytes.NewBufferString(encodedData)); err != nil {
 		return err
 	}
 
@@ -53,9 +53,7 @@ func (h *HalkBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, error) 
 	formData.Add("submitPasswordButton", "Submit")
 	encodedData := formData.Encode()
 
-	fullUrl := fmt.Sprintf("https://%s", banks.HalkBankOtpUrl)
-
-	res, err := util.Post(fullUrl, bytes.NewBufferString(encodedData))
+	res, err := util.Post(banks.HalkBankOtpUrl, bytes.NewBufferString(encodedData))
 	if err != nil {
 		return "", err
 	}

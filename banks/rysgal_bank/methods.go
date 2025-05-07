@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/url"
 
+	"golang.org/x/net/html"
+
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
 	"github.com/TurkmenistanRailways/bpc-payment/util"
-	"golang.org/x/net/html"
 )
 
 func (h *RysgalBank) getOtpRequestID(orderId string, form SubmitCardResponse) (string, error) {

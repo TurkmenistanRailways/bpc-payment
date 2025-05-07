@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
 	"github.com/TurkmenistanRailways/bpc-payment/util"
@@ -34,10 +33,6 @@ func (h *HalkBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 		return banks.OrderStatusError, err
 	}
 
-	fmt.Println(string(res))
-
-	log.Println("Status response:", string(res))
-
 	if status, ok := statusCodes[response.ErrorCode]; ok {
 		return status, nil
 	}
@@ -52,10 +47,7 @@ func (h *HalkBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 		return err
 	}
 
-	if err = h.finishPayment(paRes, form.MDORDER); err != nil {
-		return err
-	}
-	return nil
+	return h.finishPayment(paRes, form.MDORDER)
 }
 
 // OrderRegister implements banks.Bank.

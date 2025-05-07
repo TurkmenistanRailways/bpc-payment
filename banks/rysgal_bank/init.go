@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
@@ -42,8 +41,6 @@ func (h *RysgalBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 	if err = json.Unmarshal(res, &response); err != nil {
 		return banks.OrderStatusError, err
 	}
-
-	log.Println("Status response:", string(res))
 
 	if status, ok := statusCodes[response.ErrorCode]; ok {
 		return status, nil
@@ -127,10 +124,7 @@ func (h *RysgalBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 		return err
 	}
 
-	if err = h.finishPayment(paRes, form.MDORDER); err != nil {
-		return err
-	}
-	return nil
+	return h.finishPayment(paRes, form.MDORDER)
 }
 
 func (h *RysgalBank) Refund(form banks.RefundRequest) error {

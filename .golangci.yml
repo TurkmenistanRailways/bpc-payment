@@ -1,0 +1,28 @@
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - errcheck
+    - unused
+    - misspell
+    - forbidigo
+    - dupl
+    - unparam
+    - nakedret
+    - nestif
+    - prealloc
+    - dogsled
+    - whitespace
+    - musttag
+    - bodyclose
+    - fatcontext
+    - noctx
+    - perfsprint
+    - rowserrcheck
+    - sqlclosecheck
+
+run:
+  timeout: 5m
+  tests: true
+
+version: "2"

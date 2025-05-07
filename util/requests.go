@@ -2,7 +2,6 @@ package util
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -20,11 +19,8 @@ func Post(fullURL string, formBody io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Join(err, errors.New("error executing request"))
 	}
-
 	defer func(Body io.ReadCloser) {
-		if err = Body.Close(); err != nil {
-			fmt.Println(err)
-		}
+		_ = Body.Close()
 	}(resp.Body)
 
 	body, err := io.ReadAll(resp.Body)
@@ -40,7 +36,6 @@ func Get(fullURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
 	}(resp.Body)

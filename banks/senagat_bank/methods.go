@@ -3,12 +3,12 @@ package senagat_bank
 import (
 	"bytes"
 	"fmt"
-	"github.com/TurkmenistanRailways/bpc-payment/util"
 	"net/url"
 
 	"golang.org/x/net/html"
 
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
+	"github.com/TurkmenistanRailways/bpc-payment/util"
 )
 
 func (h *SenagatBank) getOtpRequestID(orderId string, form SubmitCardResponse) (string, error) {

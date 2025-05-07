@@ -29,7 +29,7 @@ const (
 	HalkBankConfirmPaymentURL = "/payment/rest/processform.do"
 	HalkBankFinishURL         = "/payment/rest/finish3ds.do"
 	HalkBankOrderStatusURL    = "/payment/rest/getOrderStatusExtended.do"
-	HalkBankOtpUrl            = "acs.gov.tm/acs/pages/enrollment/authentication.jsf"
+	HalkBankOtpUrl            = "https://acs.gov.tm/acs/pages/enrollment/authentication.jsf"
 	HalkBankRefundURL         = "/payment/rest/refund.do"
 
 	RysgalRegisterURL       = "/epg/rest/register.do"

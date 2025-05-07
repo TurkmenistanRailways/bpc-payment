@@ -37,6 +37,8 @@ func (b BankType) Register(user banks.BankUser) banks.Bank {
 		return senagat_bank.Init(user)
 	case HalkBank:
 		return halk_bank.Init(user)
+	case RysgalBank:
+		return rysgal_bank.Init(user)
 	default:
 		return nil
 	}
