@@ -16,7 +16,7 @@ const (
 const (
 	HalkBankBaseUrl    = "https://mpi.gov.tm"
 	SenagatBankBaseUrl = "https://epg.senagatbank.com.tm"
-	RysgalBankBaseUrl  = "https://epg2.rysgalbank.tm"
+	RysgalBankBaseUrl  = "https://epg.rysgalbank.tm"
 
 	SenagatRegisterURL       = "/epg/rest/register.do"
 	SenagatConfirmPaymentURL = "/epg/rest/processform.do"
@@ -34,6 +34,10 @@ const (
 
 	RysgalRegisterURL       = "/epg/rest/register.do"
 	RysgalConfirmPaymentURL = "/epg/rest/processform.do"
+	RysgalFinishURL         = "/payments/rest/finish3ds.do"
+	RysgalBankOtpUrl        = "/acs/pages/enrollment/authentication.jsf"
+	RysgalOrderStatusURL    = "/epg/rest/getOrderStatusExtended.do"
+	RysgalRefundURL         = "/epg/rest/refund.do"
 )
 
 const (
