@@ -12,20 +12,20 @@ import (
 )
 
 type SenagatBank struct {
-	userName string
+	username string
 	password string
 }
 
 func Init(user banks.BankUser) banks.Bank {
 	return &SenagatBank{
-		userName: user.Username,
+		username: user.Username,
 		password: user.Password,
 	}
 }
 
 func (h *SenagatBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 	urlParams := util.StructToURLParams(OrderStatusRequest{
-		Username: h.userName,
+		Username: h.username,
 		Password: h.password,
 		OrderID:  orderID,
 	})
@@ -50,15 +50,19 @@ func (h *SenagatBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 }
 
 func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrationResponse, error) {
+	if form.OrderNumber == "" {
+		form.OrderNumber = util.GenerateOrderNumber(1, 32)
+	}
+
 	requestPayload := banks.OrderRegistrationRequest{
-		Username:           h.userName,
+		Username:           h.username,
 		Password:           h.password,
 		Amount:             form.Amount,
 		SessionTimeoutSecs: form.SessionTimeout,
 		Language:           form.Language,
 		Currency:           banks.CurrencyTMT,
 		ReturnURL:          "/", // Consider making this configurable
-		OrderNumber:        util.GenerateOrderNumber(1, 32),
+		OrderNumber:        form.OrderNumber,
 	}
 
 	urlParams := util.StructToURLParams(requestPayload)
@@ -127,7 +131,7 @@ func (h *SenagatBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 }
 
 func (h *SenagatBank) Refund(form banks.RefundRequest) error {
-	form.Username = h.userName
+	form.Username = h.username
 	form.Password = h.password
 
 	urlParams := util.StructToURLParams(form)

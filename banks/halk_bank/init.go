@@ -52,6 +52,10 @@ func (h *HalkBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 
 // OrderRegister implements banks.Bank.
 func (h *HalkBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrationResponse, error) {
+	if form.OrderNumber == "" {
+		form.OrderNumber = util.GenerateOrderNumber(1, 32)
+	}
+
 	requestPayload := banks.OrderRegistrationRequest{
 		Username:           h.username,
 		Password:           h.password,
@@ -60,7 +64,7 @@ func (h *HalkBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrati
 		Language:           form.Language,
 		Currency:           banks.CurrencyTMT,
 		ReturnURL:          "/", // Consider making this configurable
-		OrderNumber:        util.GenerateOrderNumber(1, 32),
+		OrderNumber:        form.OrderNumber,
 	}
 
 	urlParams := util.StructToURLParams(requestPayload)
