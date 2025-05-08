@@ -21,7 +21,7 @@ func (h *HalkBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 		Password: h.password,
 		OrderID:  orderID,
 	})
-	fullURL := fmt.Sprintf("%s%s?%s", banks.HalkBankBaseUrl, banks.HalkBankOrderStatusURL, urlParams)
+	fullURL := fmt.Sprintf(banks.URLFormat, banks.HalkBankBaseUrl, banks.HalkBankOrderStatusURL, urlParams)
 
 	res, err := util.Post(fullURL, nil)
 	if err != nil {
@@ -56,6 +56,10 @@ func (h *HalkBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrati
 		form.OrderNumber = util.GenerateOrderNumber(1, 32)
 	}
 
+	if form.ReturnURL == "" {
+		form.ReturnURL = "/"
+	}
+
 	requestPayload := banks.OrderRegistrationRequest{
 		Username:           h.username,
 		Password:           h.password,
@@ -63,12 +67,12 @@ func (h *HalkBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrati
 		SessionTimeoutSecs: form.SessionTimeout,
 		Language:           form.Language,
 		Currency:           banks.CurrencyTMT,
-		ReturnURL:          "/", // Consider making this configurable
+		ReturnURL:          form.ReturnURL,
 		OrderNumber:        form.OrderNumber,
 	}
 
 	urlParams := util.StructToURLParams(requestPayload)
-	registerUrl := fmt.Sprintf("%s%s?%s", banks.HalkBankBaseUrl, banks.HalkBankRegisterURL, urlParams)
+	registerUrl := fmt.Sprintf(banks.URLFormat, banks.HalkBankBaseUrl, banks.HalkBankRegisterURL, urlParams)
 
 	responseBody, err := util.Post(registerUrl, nil)
 	if err != nil {
@@ -91,7 +95,7 @@ func (h *HalkBank) Refund(form banks.RefundRequest) error {
 	form.Password = h.password
 
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.HalkBankBaseUrl, banks.HalkBankRefundURL, urlParams)
+	fullUrl := fmt.Sprintf(banks.URLFormat, banks.HalkBankBaseUrl, banks.HalkBankRefundURL, urlParams)
 
 	if _, err := util.Get(fullUrl); err != nil {
 		return err
@@ -107,7 +111,7 @@ func (h *HalkBank) ResendOtpCode(requestId string) error {
 // SubmitCard implements banks.Bank.
 func (h *HalkBank) SubmitCard(form banks.SubmitCard) (string, error) {
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.HalkBankBaseUrl, banks.HalkBankConfirmPaymentURL, urlParams)
+	fullUrl := fmt.Sprintf(banks.URLFormat, banks.HalkBankBaseUrl, banks.HalkBankConfirmPaymentURL, urlParams)
 
 	responseBody, err := util.Post(fullUrl, nil)
 	if err != nil {

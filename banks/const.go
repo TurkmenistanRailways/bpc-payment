@@ -42,4 +42,8 @@ const (
 
 const (
 	CurrencyTMT = "934"
+	// URLFormat is the format for constructing URLs.
+	// It takes three parameters: base URL, endpoint, and query string.
+	// The final URL will be constructed as: baseURL + endpoint + "?" + queryString
+	URLFormat = "%s%s?%s"
 )

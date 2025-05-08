@@ -30,7 +30,7 @@ func (h *RysgalBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 		OrderID:  orderID,
 	})
 
-	fullURL := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalOrderStatusURL, urlParams)
+	fullURL := fmt.Sprintf(banks.URLFormat, banks.RysgalBankBaseUrl, banks.RysgalOrderStatusURL, urlParams)
 
 	res, err := util.Post(fullURL, nil)
 	if err != nil {
@@ -54,6 +54,10 @@ func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistra
 		form.OrderNumber = util.GenerateOrderNumber(1, 32)
 	}
 
+	if form.ReturnURL == "" {
+		form.ReturnURL = "/"
+	}
+
 	requestPayload := banks.OrderRegistrationRequest{
 		Username:           h.username,
 		Password:           h.password,
@@ -61,12 +65,12 @@ func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistra
 		SessionTimeoutSecs: form.SessionTimeout,
 		Language:           form.Language,
 		Currency:           banks.CurrencyTMT,
-		ReturnURL:          "/", // Consider making this configurable
+		ReturnURL:          form.ReturnURL,
 		OrderNumber:        form.OrderNumber,
 	}
 
 	urlParams := util.StructToURLParams(requestPayload)
-	registerURL := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalRegisterURL, urlParams)
+	registerURL := fmt.Sprintf(banks.URLFormat, banks.RysgalBankBaseUrl, banks.RysgalRegisterURL, urlParams)
 
 	responseBody, err := util.Post(registerURL, nil)
 	if err != nil {
@@ -86,7 +90,7 @@ func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistra
 
 func (h *RysgalBank) SubmitCard(form banks.SubmitCard) (string, error) {
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalConfirmPaymentURL, urlParams)
+	fullUrl := fmt.Sprintf(banks.URLFormat, banks.RysgalBankBaseUrl, banks.RysgalConfirmPaymentURL, urlParams)
 
 	responseBody, err := util.Post(fullUrl, nil)
 	if err != nil {
@@ -136,7 +140,7 @@ func (h *RysgalBank) Refund(form banks.RefundRequest) error {
 	form.Password = h.password
 
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.RysgalBankBaseUrl, banks.RysgalRefundURL, urlParams)
+	fullUrl := fmt.Sprintf(banks.URLFormat, banks.RysgalBankBaseUrl, banks.RysgalRefundURL, urlParams)
 
 	if _, err := util.Get(fullUrl); err != nil {
 		return err

@@ -30,7 +30,7 @@ func (h *SenagatBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 		OrderID:  orderID,
 	})
 
-	fullURL := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatOrderStatusURL, urlParams)
+	fullURL := fmt.Sprintf(banks.URLFormat, banks.SenagatBankBaseUrl, banks.SenagatOrderStatusURL, urlParams)
 
 	res, err := util.Post(fullURL, nil)
 	if err != nil {
@@ -54,6 +54,10 @@ func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistr
 		form.OrderNumber = util.GenerateOrderNumber(1, 32)
 	}
 
+	if form.ReturnURL == "" {
+		form.ReturnURL = "/"
+	}
+
 	requestPayload := banks.OrderRegistrationRequest{
 		Username:           h.username,
 		Password:           h.password,
@@ -61,12 +65,12 @@ func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistr
 		SessionTimeoutSecs: form.SessionTimeout,
 		Language:           form.Language,
 		Currency:           banks.CurrencyTMT,
-		ReturnURL:          "/", // Consider making this configurable
+		ReturnURL:          form.ReturnURL,
 		OrderNumber:        form.OrderNumber,
 	}
 
 	urlParams := util.StructToURLParams(requestPayload)
-	registerURL := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatRegisterURL, urlParams)
+	registerURL := fmt.Sprintf(banks.URLFormat, banks.SenagatBankBaseUrl, banks.SenagatRegisterURL, urlParams)
 
 	responseBody, err := util.Post(registerURL, nil)
 	if err != nil {
@@ -86,7 +90,7 @@ func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistr
 
 func (h *SenagatBank) SubmitCard(form banks.SubmitCard) (string, error) {
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatConfirmPaymentURL, urlParams)
+	fullUrl := fmt.Sprintf(banks.URLFormat, banks.SenagatBankBaseUrl, banks.SenagatConfirmPaymentURL, urlParams)
 
 	responseBody, err := util.Post(fullUrl, nil)
 	if err != nil {
@@ -135,7 +139,7 @@ func (h *SenagatBank) Refund(form banks.RefundRequest) error {
 	form.Password = h.password
 
 	urlParams := util.StructToURLParams(form)
-	fullUrl := fmt.Sprintf("%s%s?%s", banks.SenagatBankBaseUrl, banks.SenagatRefundURL, urlParams)
+	fullUrl := fmt.Sprintf(banks.URLFormat, banks.SenagatBankBaseUrl, banks.SenagatRefundURL, urlParams)
 
 	if _, err := util.Get(fullUrl); err != nil {
 		return err

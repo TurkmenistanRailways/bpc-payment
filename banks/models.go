@@ -5,6 +5,7 @@ type RegisterForm struct {
 	SessionTimeout int
 	Language       string
 	OrderNumber    string
+	ReturnURL      string
 }
 
 type BankUser struct {
