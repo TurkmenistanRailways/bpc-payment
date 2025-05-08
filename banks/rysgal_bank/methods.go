@@ -74,7 +74,7 @@ func (h *RysgalBank) finishPayment(paRes, orderID string) error {
 	formData.Add("MD", orderID)
 	formData.Add("PaRes", paRes)
 	encodedData := formData.Encode()
-	fullUrl := fmt.Sprintf("%s%s", banks.RysgalBankBaseUrl, banks.SenagatFinishURL)
+	fullUrl := fmt.Sprintf("%s%s", banks.RysgalBankBaseUrl, banks.RysgalFinishURL)
 
 	if _, err := util.Post(fullUrl, bytes.NewBufferString(encodedData)); err != nil {
 		return err
