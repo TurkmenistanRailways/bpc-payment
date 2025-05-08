@@ -96,8 +96,8 @@ func (h *HalkBank) Refund(form banks.RefundRequest) error {
 }
 
 // ResendOtpCode implements banks.Bank.
-func (h *HalkBank) ResendOtpCode(request string) error {
-	panic("unimplemented")
+func (h *HalkBank) ResendOtpCode(requestId string) error {
+	return errors.New("not exist")
 }
 
 // SubmitCard implements banks.Bank.
