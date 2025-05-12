@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"golang.org/x/net/html"
 
@@ -63,6 +64,10 @@ func (h *HalkBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, error) 
 		return "", err
 	}
 
+	if h.hasOTPError(root) {
+		return "", fmt.Errorf(banks.OTPError)
+	}
+
 	return util.FindPaRes(root), nil
 }
 
@@ -78,4 +83,36 @@ func (h *HalkBank) finishPayment(paRes, orderID string) error {
 	}
 
 	return nil
+}
+
+// isErrorDiv checks if the node is an error div
+func (h *HalkBank) isErrorDiv(n *html.Node) bool {
+	if n.Type != html.ElementNode || n.Data != "div" {
+		return false
+	}
+
+	var id, class string
+	for _, attr := range n.Attr {
+		switch attr.Key {
+		case "id":
+			id = attr.Val
+		case "class":
+			class = attr.Val
+		}
+	}
+
+	return id == "errorContainer" && strings.Contains(class, "error")
+}
+
+// Recursively search for the error div
+func (h *HalkBank) hasOTPError(n *html.Node) bool {
+	if h.isErrorDiv(n) {
+		return true
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if h.hasOTPError(c) {
+			return true
+		}
+	}
+	return false
 }

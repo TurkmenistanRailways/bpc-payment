@@ -66,7 +66,7 @@ func (h *SenagatBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, erro
 	}
 
 	if h.hasOTPError(root) {
-		return "", fmt.Errorf("OTP error")
+		return "", fmt.Errorf(banks.OTPError)
 	}
 
 	return util.FindPaRes(root), nil
