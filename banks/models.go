@@ -62,6 +62,11 @@ type ConfirmPaymentRequest struct {
 }
 
 type RefundRequest struct {
+	OrderID string `json:"orderId"`
+	Amount  int    `json:"amount"`
+}
+
+type Refund struct {
 	Username string `json:"userName"`
 	Password string `json:"password"`
 	OrderID  string `json:"orderId"`

@@ -1,5 +1,7 @@
 package banks
 
+import "errors"
+
 type OrderStatus string
 
 const (
@@ -46,4 +48,8 @@ const (
 	// It takes three parameters: base URL, endpoint, and query string.
 	// The final URL will be constructed as: baseURL + endpoint + "?" + queryString
 	URLFormat = "%s%s?%s"
+)
+
+var (
+	ErrorInvalidCardCredentials = errors.New("invalid card credentials")
 )

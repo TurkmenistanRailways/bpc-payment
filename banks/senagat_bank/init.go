@@ -31,7 +31,6 @@ func (h *SenagatBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 	})
 
 	fullURL := fmt.Sprintf(banks.URLFormat, banks.SenagatBankBaseUrl, banks.SenagatOrderStatusURL, urlParams)
-
 	res, err := util.Post(fullURL, nil)
 	if err != nil {
 		return banks.OrderStatusError, errors.Join(err, errors.New("error checking order status"))
@@ -102,6 +101,10 @@ func (h *SenagatBank) SubmitCard(form banks.SubmitCard) (string, error) {
 		return "", errors.Join(err, errors.New("error unmarshalling submit card response"))
 	}
 
+	if !response.IsValid() {
+		return "", banks.ErrorInvalidCardCredentials
+	}
+
 	requestID, err := h.getOtpRequestID(form.PAN, response)
 	if err != nil {
 		return "", errors.Join(err, errors.New("error getting OTP request ID"))
@@ -135,12 +138,14 @@ func (h *SenagatBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 }
 
 func (h *SenagatBank) Refund(form banks.RefundRequest) error {
-	form.Username = h.username
-	form.Password = h.password
+	urlParams := util.StructToURLParams(banks.Refund{
+		Username: h.username,
+		Password: h.password,
+		OrderID:  form.OrderID,
+		Amount:   form.Amount,
+	})
 
-	urlParams := util.StructToURLParams(form)
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.SenagatBankBaseUrl, banks.SenagatRefundURL, urlParams)
-
 	if _, err := util.Get(fullUrl); err != nil {
 		return errors.Join(err, errors.New("error refunding order"))
 	}
