@@ -34,19 +34,19 @@ func (h *RysgalBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 
 	res, err := util.Post(fullURL, nil)
 	if err != nil {
-		return banks.OrderStatusError, err
+		return banks.OrderStatusError, errors.Join(err, errors.New("error checking order status"))
 	}
 
 	var response OrderStatusResponse
 	if err = json.Unmarshal(res, &response); err != nil {
-		return banks.OrderStatusError, err
+		return banks.OrderStatusError, errors.Join(err, errors.New("error unmarshalling order status response"))
 	}
 
 	if status, ok := statusCodes[response.ErrorCode]; ok {
 		return status, nil
 	}
 
-	return banks.OrderStatusError, errors.New("invalid status code")
+	return banks.OrderStatusError, errors.New("unknown error code")
 }
 
 func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrationResponse, error) {
@@ -74,12 +74,12 @@ func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistra
 
 	responseBody, err := util.Post(registerURL, nil)
 	if err != nil {
-		return banks.OrderRegistrationResponse{}, fmt.Errorf("failed to register order: %w", err)
+		return banks.OrderRegistrationResponse{}, errors.Join(err, errors.New("error registering order"))
 	}
 
 	var orderRegistrationResponse OrderRegistrationResponse
 	if err = json.Unmarshal(responseBody, &orderRegistrationResponse); err != nil {
-		return banks.OrderRegistrationResponse{}, fmt.Errorf("failed to unmarshal orderRegistrationResponse: %w", err)
+		return banks.OrderRegistrationResponse{}, errors.Join(err, errors.New("error unmarshalling order registration response"))
 	}
 
 	return banks.OrderRegistrationResponse{
@@ -94,17 +94,17 @@ func (h *RysgalBank) SubmitCard(form banks.SubmitCard) (string, error) {
 
 	responseBody, err := util.Post(fullUrl, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to register order: %w", err)
+		return "", errors.Join(err, errors.New("error submitting card"))
 	}
 
 	var response SubmitCardResponse
 	if err = json.Unmarshal(responseBody, &response); err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error unmarshalling submit card response"))
 	}
 
 	requestID, err := h.getOtpRequestID(form.PAN, response)
 	if err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error getting OTP request ID"))
 	}
 
 	return requestID, h.sendOtp(requestID)
@@ -120,7 +120,7 @@ func (h *RysgalBank) ResendOtpCode(requestID string) error {
 
 	requestUrl := fmt.Sprintf("%s%s", banks.RysgalBankBaseUrl, banks.RysgalBankOtpUrl)
 	if _, err := util.Post(requestUrl, bytes.NewBufferString(encodedData)); err != nil {
-		return err
+		return errors.Join(err, errors.New("error resending OTP"))
 	}
 
 	return nil
@@ -129,7 +129,7 @@ func (h *RysgalBank) ResendOtpCode(requestID string) error {
 func (h *RysgalBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 	paRes, err := h.confirmOtp(form)
 	if err != nil {
-		return err
+		return errors.Join(err, errors.New("error confirming OTP"))
 	}
 
 	return h.finishPayment(paRes, form.MDORDER)
@@ -143,7 +143,7 @@ func (h *RysgalBank) Refund(form banks.RefundRequest) error {
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.RysgalBankBaseUrl, banks.RysgalRefundURL, urlParams)
 
 	if _, err := util.Get(fullUrl); err != nil {
-		return err
+		return errors.Join(err, errors.New("error refunding order"))
 	}
 
 	return nil

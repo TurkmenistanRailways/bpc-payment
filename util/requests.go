@@ -34,7 +34,7 @@ func Post(fullURL string, formBody io.Reader) ([]byte, error) {
 func Get(fullURL string) ([]byte, error) {
 	resp, err := http.Get(fullURL)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error executing GET request")
 	}
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
@@ -42,7 +42,7 @@ func Get(fullURL string) ([]byte, error) {
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error reading response body")
 	}
 
 	return bodyBytes, nil

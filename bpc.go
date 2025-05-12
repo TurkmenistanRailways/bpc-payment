@@ -3,6 +3,8 @@ package bpc
 import (
 	"fmt"
 
+	"errors"
+
 	"github.com/TurkmenistanRailways/bpc-payment/banks"
 )
 
@@ -22,7 +24,7 @@ func (bpc *BPC) AddProfile(profileName string, bankType BankType, claims banks.B
 	}
 
 	if _, ok := bpc.banks[profileName]; ok {
-		return fmt.Errorf("profile %s already exists", profileName)
+		return errors.New("profile already exists")
 	}
 
 	bpc.banks[profileName] = bankType.Register(claims)

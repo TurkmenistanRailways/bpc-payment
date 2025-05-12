@@ -2,6 +2,7 @@ package halk_bank
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -21,12 +22,12 @@ func (h *HalkBank) getOtpRequestID(orderId string, form SubmitCardResponse) (str
 
 	resp, err := util.Post(form.AcsUrl, bytes.NewBufferString(encodedData))
 	if err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error sending RequestID request"))
 	}
 
 	root, err := html.Parse(bytes.NewReader(resp))
 	if err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error parsing HTML response"))
 	}
 
 	return util.FindRequestId(root), nil
@@ -40,7 +41,7 @@ func (h *HalkBank) sendOtp(requestID string) error {
 	encodedData := formData.Encode()
 
 	if _, err := util.Post(banks.HalkBankOtpUrl, bytes.NewBufferString(encodedData)); err != nil {
-		return err
+		return errors.Join(err, errors.New("error sending OTP"))
 	}
 
 	return nil
@@ -56,16 +57,16 @@ func (h *HalkBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, error) 
 
 	res, err := util.Post(banks.HalkBankOtpUrl, bytes.NewBufferString(encodedData))
 	if err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error confirming OTP"))
 	}
 
 	root, err := html.Parse(bytes.NewReader(res))
 	if err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error parsing HTML response"))
 	}
 
 	if h.hasOTPError(root) {
-		return "", fmt.Errorf(banks.OTPError)
+		return "", errors.New("error confirming OTP")
 	}
 
 	return util.FindPaRes(root), nil
@@ -79,7 +80,7 @@ func (h *HalkBank) finishPayment(paRes, orderID string) error {
 	fullUrl := fmt.Sprintf("%s%s", banks.HalkBankBaseUrl, banks.HalkBankFinishURL)
 
 	if _, err := util.Post(fullUrl, bytes.NewBufferString(encodedData)); err != nil {
-		return err
+		return errors.Join(err, errors.New("error finishing payment"))
 	}
 
 	return nil

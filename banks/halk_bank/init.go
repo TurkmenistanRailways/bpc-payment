@@ -25,26 +25,26 @@ func (h *HalkBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 
 	res, err := util.Post(fullURL, nil)
 	if err != nil {
-		return banks.OrderStatusError, err
+		return banks.OrderStatusError, errors.Join(err, errors.New("error checking order status"))
 	}
 
 	var response OrderStatusResponse
 	if err = json.Unmarshal(res, &response); err != nil {
-		return banks.OrderStatusError, err
+		return banks.OrderStatusError, errors.Join(err, errors.New("error unmarshalling order status response"))
 	}
 
 	if status, ok := statusCodes[response.ErrorCode]; ok {
 		return status, nil
 	}
 
-	return banks.OrderStatusError, errors.New("invalid status code")
+	return banks.OrderStatusError, errors.New("unknown error code")
 }
 
 // ConfirmPayment implements banks.Bank.
 func (h *HalkBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 	paRes, err := h.confirmOtp(form)
 	if err != nil {
-		return err
+		return errors.Join(err, errors.New("error confirming OTP"))
 	}
 
 	return h.finishPayment(paRes, form.MDORDER)
@@ -76,12 +76,12 @@ func (h *HalkBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrati
 
 	responseBody, err := util.Post(registerUrl, nil)
 	if err != nil {
-		return banks.OrderRegistrationResponse{}, fmt.Errorf("failed to register order: %w", err)
+		return banks.OrderRegistrationResponse{}, errors.Join(err, errors.New("error registering order"))
 	}
 
 	var orderRegistrationResponse OrderRegistrationResponse
 	if err = json.Unmarshal(responseBody, &orderRegistrationResponse); err != nil {
-		return banks.OrderRegistrationResponse{}, fmt.Errorf("failed to unmarshal orderRegistrationResponse: %w", err)
+		return banks.OrderRegistrationResponse{}, errors.Join(err, errors.New("error unmarshalling order registration response"))
 	}
 	return banks.OrderRegistrationResponse{
 		OrderId: orderRegistrationResponse.OrderId,
@@ -98,7 +98,7 @@ func (h *HalkBank) Refund(form banks.RefundRequest) error {
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.HalkBankBaseUrl, banks.HalkBankRefundURL, urlParams)
 
 	if _, err := util.Get(fullUrl); err != nil {
-		return err
+		return errors.Join(err, errors.New("error refunding order"))
 	}
 	return nil
 }
@@ -115,17 +115,17 @@ func (h *HalkBank) SubmitCard(form banks.SubmitCard) (string, error) {
 
 	responseBody, err := util.Post(fullUrl, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to register order: %w", err)
+		return "", errors.Join(err, errors.New("error submitting card data"))
 	}
 
 	var response SubmitCardResponse
 	if err = json.Unmarshal(responseBody, &response); err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error unmarshalling card data response"))
 	}
 
 	requestID, err := h.getOtpRequestID(form.PAN, response)
 	if err != nil {
-		return "", err
+		return "", errors.Join(err, errors.New("error getting OTP request ID"))
 	}
 
 	return requestID, h.sendOtp(requestID)
