@@ -110,6 +110,14 @@ func (h *HalkBank) ResendOtpCode(requestId string) error {
 
 // SubmitCard implements banks.Bank.
 func (h *HalkBank) SubmitCard(form banks.SubmitCard) (string, error) {
+	if ok := util.IsValidExpiry(form.EXPIRY); !ok {
+		return "", errors.New("invalid expiry date")
+	}
+
+	if ok := util.IsValidPAN(form.PAN); !ok {
+		return "", errors.New("invalid PAN")
+	}
+
 	urlParams := util.StructToURLParams(form)
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.HalkBankBaseUrl, banks.HalkBankConfirmPaymentURL, urlParams)
 
