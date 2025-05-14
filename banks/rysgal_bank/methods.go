@@ -3,8 +3,6 @@ package rysgal_bank
 import (
 	"bytes"
 	"errors"
-	"fmt"
-	"net/url"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -14,13 +12,7 @@ import (
 )
 
 func (h *RysgalBank) getOtpRequestID(orderId string, form SubmitCardResponse) (string, error) {
-	formData := url.Values{}
-	formData.Add("MD", orderId)
-	formData.Add("PaReq", form.PaReq)
-	formData.Add("TermUrl", form.TermUrl)
-	encodedData := formData.Encode()
-
-	resp, err := util.Post(form.AcsUrl, bytes.NewBufferString(encodedData))
+	resp, err := util.Post(form.AcsUrl, generateGetOtpRequestIDForm(orderId, form.PaReq, form.TermUrl))
 	if err != nil {
 		return "", errors.Join(err, errors.New("error sending RequestID request"))
 	}
@@ -34,14 +26,7 @@ func (h *RysgalBank) getOtpRequestID(orderId string, form SubmitCardResponse) (s
 }
 
 func (h *RysgalBank) sendOtp(requestID string) error {
-	formData := url.Values{}
-	formData.Add("request_id", requestID)
-	formData.Add("authForm", "authForm")
-	formData.Add("sendPasswordButton", "Send password")
-	encodedData := formData.Encode()
-
-	requestUrl := fmt.Sprintf("%s%s", banks.RysgalBankBaseUrl, banks.RysgalBankOtpUrl)
-	if _, err := util.Post(requestUrl, bytes.NewBufferString(encodedData)); err != nil {
+	if _, err := util.Post(sendOtpUrl, generateSendOtpForm(requestID)); err != nil {
 		return errors.Join(err, errors.New("error sending OTP"))
 	}
 
@@ -49,16 +34,7 @@ func (h *RysgalBank) sendOtp(requestID string) error {
 }
 
 func (h *RysgalBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, error) {
-	formData := url.Values{}
-	formData.Add("authForm", "authForm")
-	formData.Add("request_id", form.RequestID)
-	formData.Add("pwdInputVisible", form.PasswordEdit)
-	formData.Add("submitPasswordButton", "Submit")
-	encodedData := formData.Encode()
-
-	fullUrl := fmt.Sprintf("%s%s", banks.RysgalBankBaseUrl, banks.RysgalBankOtpUrl)
-
-	res, err := util.Post(fullUrl, bytes.NewBufferString(encodedData))
+	res, err := util.Post(confirmOtpUrl, generateConfirmOtpForm(form.RequestID, form.PasswordEdit))
 	if err != nil {
 		return "", errors.Join(err, errors.New("error confirming OTP"))
 	}
@@ -76,13 +52,7 @@ func (h *RysgalBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, error
 }
 
 func (h *RysgalBank) finishPayment(paRes, orderID string) error {
-	formData := url.Values{}
-	formData.Add("MD", orderID)
-	formData.Add("PaRes", paRes)
-	encodedData := formData.Encode()
-	fullUrl := fmt.Sprintf("%s%s", banks.RysgalBankBaseUrl, banks.RysgalFinishURL)
-
-	if _, err := util.Post(fullUrl, bytes.NewBufferString(encodedData)); err != nil {
+	if _, err := util.Post(finishPaymentUrl, generateFinishPaymentForm(orderID, paRes)); err != nil {
 		return errors.Join(err, errors.New("error finishing payment"))
 	}
 

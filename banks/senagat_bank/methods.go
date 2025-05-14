@@ -3,8 +3,6 @@ package senagat_bank
 import (
 	"bytes"
 	"errors"
-	"fmt"
-	"net/url"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -14,13 +12,8 @@ import (
 )
 
 func (h *SenagatBank) getOtpRequestID(orderId string, form SubmitCardResponse) (string, error) {
-	formData := url.Values{}
-	formData.Add("MD", orderId)
-	formData.Add("PaReq", form.PaReq)
-	formData.Add("TermUrl", form.TermUrl)
-	encodedData := formData.Encode()
-
-	resp, err := util.Post(form.AcsUrl, bytes.NewBufferString(encodedData))
+	body := bytes.NewBufferString(generateGetOtpRequestIDForm(orderId, form.PaReq, form.TermUrl))
+	resp, err := util.Post(form.AcsUrl, body)
 	if err != nil {
 		return "", errors.Join(err, errors.New("error sending RequestID request"))
 	}
@@ -34,13 +27,8 @@ func (h *SenagatBank) getOtpRequestID(orderId string, form SubmitCardResponse) (
 }
 
 func (h *SenagatBank) sendOtp(requestID string) error {
-	formData := url.Values{}
-	formData.Add("request_id", requestID)
-	formData.Add("sendButton", "Ugratmak")
-	encodedData := formData.Encode()
-
-	requestUrl := fmt.Sprintf("%s%s", banks.SenagatBankBaseUrl, banks.SenagatOTPURL)
-	if _, err := util.Post(requestUrl, bytes.NewBufferString(encodedData)); err != nil {
+	body := bytes.NewBufferString(generateSendOtpForm(requestID))
+	if _, err := util.Post(sendOtpUrl, body); err != nil {
 		return errors.Join(err, errors.New("error sending OTP"))
 	}
 
@@ -48,15 +36,8 @@ func (h *SenagatBank) sendOtp(requestID string) error {
 }
 
 func (h *SenagatBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, error) {
-	formData := url.Values{}
-	formData.Add("request_id", form.RequestID)
-	formData.Add("passwordEdit", form.PasswordEdit)
-	formData.Add("submitButton", "Tassyklamak")
-	encodedData := formData.Encode()
-
-	fullUrl := fmt.Sprintf("%s%s", banks.SenagatBankBaseUrl, banks.SenagatOTPURL)
-
-	res, err := util.Post(fullUrl, bytes.NewBufferString(encodedData))
+	body := bytes.NewBufferString(generateConfirmOtpForm(form.RequestID, form.PasswordEdit))
+	res, err := util.Post(confirmOtpUrl, body)
 	if err != nil {
 		return "", errors.Join(err, errors.New("error confirming OTP"))
 	}
@@ -74,13 +55,8 @@ func (h *SenagatBank) confirmOtp(form banks.ConfirmPaymentRequest) (string, erro
 }
 
 func (h *SenagatBank) finishPayment(paRes, orderID string) error {
-	formData := url.Values{}
-	formData.Add("MD", orderID)
-	formData.Add("PaRes", paRes)
-	encodedData := formData.Encode()
-	fullUrl := fmt.Sprintf("%s%s", banks.SenagatBankBaseUrl, banks.SenagatFinishURL)
-
-	if _, err := util.Post(fullUrl, bytes.NewBufferString(encodedData)); err != nil {
+	body := bytes.NewBufferString(generateFinishPaymentForm(orderID, paRes))
+	if _, err := util.Post(finishPaymentUrl, body); err != nil {
 		return errors.Join(err, errors.New("error finishing payment"))
 	}
 

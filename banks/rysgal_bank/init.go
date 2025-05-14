@@ -136,12 +136,14 @@ func (h *RysgalBank) ConfirmPayment(form banks.ConfirmPaymentRequest) error {
 }
 
 func (h *RysgalBank) Refund(form banks.RefundRequest) error {
-	form.Username = h.username
-	form.Password = h.password
+	urlParams := util.StructToURLParams(banks.Refund{
+		Username: h.username,
+		Password: h.password,
+		Amount:   form.Amount,
+		OrderID:  form.OrderID,
+	})
 
-	urlParams := util.StructToURLParams(form)
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.RysgalBankBaseUrl, banks.RysgalRefundURL, urlParams)
-
 	if _, err := util.Get(fullUrl); err != nil {
 		return errors.Join(err, errors.New("error refunding order"))
 	}

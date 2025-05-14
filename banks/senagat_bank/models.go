@@ -68,3 +68,7 @@ var statusCodes = map[string]banks.OrderStatus{
 	"2": banks.OrderStatusPaid,
 	"6": banks.OrderStatusUnderpaid,
 }
+
+func (s SubmitCardResponse) IsValid() bool {
+	return len(s.AcsUrl) != 0 && len(s.PaReq) != 0 && len(s.TermUrl) != 0
+}

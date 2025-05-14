@@ -91,12 +91,14 @@ func (h *HalkBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistrati
 
 // Refund implements banks.Bank.
 func (h *HalkBank) Refund(form banks.RefundRequest) error {
-	form.Username = h.username
-	form.Password = h.password
+	urlParams := util.StructToURLParams(banks.Refund{
+		Username: h.username,
+		Password: h.password,
+		Amount:   form.Amount,
+		OrderID:  form.OrderID,
+	})
 
-	urlParams := util.StructToURLParams(form)
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.HalkBankBaseUrl, banks.HalkBankRefundURL, urlParams)
-
 	if _, err := util.Get(fullUrl); err != nil {
 		return errors.Join(err, errors.New("error refunding order"))
 	}
