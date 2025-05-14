@@ -88,6 +88,14 @@ func (h *SenagatBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistr
 }
 
 func (h *SenagatBank) SubmitCard(form banks.SubmitCard) (string, error) {
+	if ok := util.IsValidExpiry(form.EXPIRY); !ok {
+		return "", errors.New("invalid expiry date")
+	}
+
+	if ok := util.IsValidPAN(form.PAN); !ok {
+		return "", errors.New("invalid PAN")
+	}
+
 	urlParams := util.StructToURLParams(form)
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.SenagatBankBaseUrl, banks.SenagatConfirmPaymentURL, urlParams)
 

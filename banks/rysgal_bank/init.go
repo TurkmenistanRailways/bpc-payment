@@ -89,6 +89,14 @@ func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistra
 }
 
 func (h *RysgalBank) SubmitCard(form banks.SubmitCard) (string, error) {
+	if ok := util.IsValidExpiry(form.EXPIRY); !ok {
+		return "", errors.New("invalid expiry date")
+	}
+
+	if ok := util.IsValidPAN(form.PAN); !ok {
+		return "", errors.New("invalid PAN")
+	}
+
 	urlParams := util.StructToURLParams(form)
 	fullUrl := fmt.Sprintf(banks.URLFormat, banks.RysgalBankBaseUrl, banks.RysgalConfirmPaymentURL, urlParams)
 
