@@ -42,7 +42,7 @@ func (h *RysgalBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 		return banks.OrderStatusError, errors.Join(err, errors.New("error unmarshalling order status response"))
 	}
 
-	if status, ok := statusCodes[response.ErrorCode]; ok {
+	if status, ok := statusCodes[response.OrderStatus]; ok {
 		return status, nil
 	}
 

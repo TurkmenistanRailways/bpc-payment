@@ -63,10 +63,9 @@ type CardAuthInfo struct {
 	Pan                     string `json:"pan"`
 }
 
-var statusCodes = map[string]banks.OrderStatus{
-	"0": banks.OrderStatusNotPaid,
-	"2": banks.OrderStatusPaid,
-	"6": banks.OrderStatusUnderpaid,
+var statusCodes = map[int]banks.OrderStatus{
+	2: banks.OrderStatusPaid,
+	6: banks.OrderStatusUnderpaid,
 }
 
 func (s SubmitCardResponse) IsValid() bool {
