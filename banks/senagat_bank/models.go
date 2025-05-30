@@ -1,7 +1,5 @@
 package senagat_bank
 
-import "github.com/TurkmenistanRailways/bpc-payment/banks"
-
 type OrderRegistrationResponse struct {
 	OrderId      string `json:"orderId,omitempty"`
 	FormUrl      string `json:"formUrl,omitempty"`
@@ -61,11 +59,6 @@ type CardAuthInfo struct {
 	CardholderName          string `json:"cardholderName"`
 	AuthorizationResponseId string `json:"authorizationResponseId"`
 	Pan                     string `json:"pan"`
-}
-
-var statusCodes = map[int]banks.OrderStatus{
-	2: banks.OrderStatusPaid,
-	6: banks.OrderStatusUnderpaid,
 }
 
 func (s SubmitCardResponse) IsValid() bool {

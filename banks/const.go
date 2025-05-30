@@ -2,19 +2,6 @@ package banks
 
 import "errors"
 
-type OrderStatus string
-
-const (
-	OrderStatusPending   OrderStatus = "pending"   // Payment is initiated but not completed yet
-	OrderStatusPaid      OrderStatus = "paid"      // Payment completed successfully
-	OrderStatusNotPaid   OrderStatus = "not_paid"  // Payment was not made (user abandoned, etc.)
-	OrderStatusFailed    OrderStatus = "failed"    // Payment attempt failed (e.g., declined by bank)
-	OrderStatusCanceled  OrderStatus = "canceled"  // Order was canceled before payment completed
-	OrderStatusRefunded  OrderStatus = "refunded"  // Payment was returned to customer
-	OrderStatusError     OrderStatus = "error"     // Unexpected error occurred during payment
-	OrderStatusUnderpaid OrderStatus = "underpaid" // Payment received, but amount is less than expected
-)
-
 const (
 	HalkBankBaseUrl    = "https://mpi.gov.tm"
 	SenagatBankBaseUrl = "https://epg.senagatbank.com.tm"
@@ -53,3 +40,30 @@ const (
 var (
 	ErrorInvalidCardCredentials = errors.New("invalid card credentials")
 )
+
+type OrderStatus string
+
+const (
+	OrderStatusNotPaid       OrderStatus = "not_paid"       // Order was registered but not paid
+	OrderStatusAuthorized    OrderStatus = "authorized"     // Payment was authorized but not yet captured
+	OrderStatusPaid          OrderStatus = "paid"           // Payment was authorized and captured
+	OrderStatusAuthCanceled  OrderStatus = "auth_canceled"  // Authorization was canceled
+	OrderStatusRefunded      OrderStatus = "refunded"       // Payment was refunded
+	OrderStatus3DSecure      OrderStatus = "3d_secure"      // Access control server of issuing bank initiated authorization
+	OrderStatusDeclined      OrderStatus = "declined"       // Authorization was declined
+	OrderStatusPending       OrderStatus = "pending"        // Payment is pending
+	OrderStatusPartiallyPaid OrderStatus = "partially_paid" // Intermediate status for multiple partial completions
+	OrderStatusError         OrderStatus = "error"          // Unexpected error occurred during payment
+)
+
+var StatusCodes = map[int]OrderStatus{
+	0: OrderStatusNotPaid,
+	1: OrderStatusAuthorized,
+	2: OrderStatusPaid,
+	3: OrderStatusAuthCanceled,
+	4: OrderStatusRefunded,
+	5: OrderStatus3DSecure,
+	6: OrderStatusDeclined,
+	7: OrderStatusPending,
+	8: OrderStatusPartiallyPaid,
+}

@@ -42,7 +42,11 @@ func (h *RysgalBank) CheckStatus(orderID string) (banks.OrderStatus, error) {
 		return banks.OrderStatusError, errors.Join(err, errors.New("error unmarshalling order status response"))
 	}
 
-	if status, ok := statusCodes[response.OrderStatus]; ok {
+	if response.ActionCode != 0 {
+		return banks.OrderStatusError, errors.Join(err, fmt.Errorf("error code: %d, description: %s", response.ActionCode, response.ActionCodeDescription))
+	}
+
+	if status, ok := banks.StatusCodes[response.OrderStatus]; ok {
 		return status, nil
 	}
 
@@ -80,6 +84,10 @@ func (h *RysgalBank) OrderRegister(form banks.RegisterForm) (banks.OrderRegistra
 	var orderRegistrationResponse OrderRegistrationResponse
 	if err = json.Unmarshal(responseBody, &orderRegistrationResponse); err != nil {
 		return banks.OrderRegistrationResponse{}, errors.Join(err, errors.New("error unmarshalling order registration response"))
+	}
+
+	if orderRegistrationResponse.ErrorMessage != "" {
+		return banks.OrderRegistrationResponse{}, errors.New(orderRegistrationResponse.ErrorMessage)
 	}
 
 	return banks.OrderRegistrationResponse{
